@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostgreSQL & pgvector Expert Recruitment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+            background: #0a0a0a;
+            min-height: 100vh;
+            color: #ffffff;
+        }
+
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 60px 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 100px;
+        }
+
+        .badge-container {
+            display: inline-block;
+            padding: 8px 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50px;
+            margin-bottom: 30px;
+        }
+
+        .badge-text {
+            font-size: 0.85em;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 600;
+        }
+
+        h1 {
+            font-size: 4.5em;
+            font-weight: 700;
+            letter-spacing: -2px;
+            line-height: 1.1;
+            margin-bottom: 25px;
+            background: linear-gradient(180deg, #ffffff 0%, #6b7280 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            color: #6b7280;
+            font-weight: 400;
+            letter-spacing: -0.5px;
+        }
+
+        .divider {
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            margin: 100px 0;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 100px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .card {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.06);
+            padding: 50px;
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100px;
+            height: 1px;
+            background: linear-gradient(90deg, #3b82f6, transparent);
+        }
+
+        .card:nth-child(2)::before {
+            background: linear-gradient(90deg, #8b5cf6, transparent);
+        }
+
+        .card:hover {
+            background: rgba(255,255,255,0.02);
+            border-color: rgba(255,255,255,0.1);
+            transform: translateX(10px);
+        }
+
+        .card-number {
+            font-size: 0.85em;
+            color: #3b82f6;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+        }
+
+        .card:nth-child(2) .card-number {
+            color: #8b5cf6;
+        }
+
+        .card h3 {
+            font-size: 2.2em;
+            margin-bottom: 30px;
+            font-weight: 300;
+            color: #ffffff;
+            letter-spacing: -1px;
+        }
+
+        .card-list {
+            list-style: none;
+        }
+
+        .card-list li {
+            padding: 15px 0;
+            color: #9ca3af;
+            font-size: 1.05em;
+            line-height: 1.8;
+            display: flex;
+            align-items: flex-start;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+
+        .card-list li:last-child {
+            border-bottom: none;
+        }
+
+        .card-list li::before {
+            content: "—";
+            color: #3b82f6;
+            margin-right: 15px;
+            font-weight: 300;
+            flex-shrink: 0;
+        }
+
+        .card:nth-child(2) .card-list li::before {
+            color: #8b5cf6;
+        }
+
+        .objective-section {
+            background: transparent;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 100px 0;
+            margin-bottom: 100px;
+            text-align: left;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .objective-title {
+            font-size: 1em;
+            margin-bottom: 40px;
+            font-weight: 500;
+            color: #6b7280;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .objective-content {
+            font-size: 1.8em;
+            line-height: 1.6;
+            color: #ffffff;
+            font-weight: 300;
+            letter-spacing: -0.5px;
+        }
+
+        .objective-content strong {
+            color: #3b82f6;
+            font-weight: 400;
+        }
+
+        .cta-section {
+            text-align: center;
+            padding: 100px 0 80px;
+        }
+
+        .cta-title {
+            font-size: 3.5em;
+            margin-bottom: 25px;
+            font-weight: 200;
+            letter-spacing: -1px;
+        }
+
+        .cta-subtitle {
+            font-size: 1.1em;
+            color: #6b7280;
+            margin-bottom: 50px;
+            font-weight: 400;
+        }
+
+        .btn-apply {
+            display: inline-block;
+            padding: 20px 60px;
+            background: transparent;
+            color: white;
+            font-size: 1em;
+            font-weight: 400;
+            border: 1px solid rgba(255,255,255,0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .btn-apply:hover {
+            border-color: rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.05);
+        }
+
+        /* 모달 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: relative;
+            background: #0f0f0f;
+            border: 1px solid rgba(255,255,255,0.1);
+            width: 90%;
+            max-width: 450px;
+            margin: 100px auto;
+            padding: 50px;
+            border-radius: 20px;
+        }
+
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 30px;
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        .close:hover {
+            color: #ffffff;
+        }
+
+        .modal h2 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .modal-subtitle {
+            color: #6b7280;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #e5e7eb;
+            font-weight: 500;
+            font-size: 0.95em;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            font-size: 1em;
+            color: #ffffff;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            opacity: 0.9;
+        }
+
+        /* 관리자 패널 */
+        .admin-panel {
+            display: none;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 40px;
+            margin-top: 60px;
+            backdrop-filter: blur(10px);
+        }
+
+        .admin-panel h3 {
+            font-size: 1.8em;
+            margin-bottom: 30px;
+            color: #ffffff;
+        }
+
+        .applicants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .applicant-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .applicant-card:hover {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.15);
+        }
+
+        .applicant-name {
+            font-size: 1.2em;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .applicant-time {
+            font-size: 0.85em;
+            color: #6b7280;
+        }
+
+        .admin-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: #6b7280;
+            cursor: pointer;
+            font-size: 0.9em;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .admin-toggle:hover {
+            background: rgba(255,255,255,0.08);
+            color: #ffffff;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 3em; }
+            .main-grid { grid-template-columns: 1fr; }
+            .objective-section { padding: 40px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    
+    <div class="container">
+        <div class="header">
+            <div class="badge-container">
+                <span class="badge-text">Now Recruiting</span>
+            </div>
+            <h1>PostgreSQL & pgvector<br>Expert Program</h1>
+            <p class="subtitle">Build the future of vector databases with us</p>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="main-grid">
+            <div class="card">
+                <div class="card-number">01</div>
+                <h3>Database Migration</h3>
+                <ul class="card-list">
+                    <li>PostgreSQL 기반 n8n 데이터베이스 마이그레이션</li>
+                    <li>대규모 워크플로우 데이터 최적화 및 이관</li>
+                    <li>데이터 무결성 보장 및 성능 튜닝</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-number">02</div>
+                <h3>Vector DB & RAG</h3>
+                <ul class="card-list">
+                    <li>pgvector 기반 임베딩 데이터베이스 구축</li>
+                    <li>RAG (Retrieval-Augmented Generation) 시스템 설계</li>
+                    <li>고성능 시맨틱 검색 개발</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="objective-section">
+            <h2 class="objective-title">Our Mission</h2>
+            <p class="objective-content">
+                우리는 급속도로 성장하는 <strong>Vector Database</strong> 기술 수요에 대응하기 위해 
+                함께할 전문가를 모집합니다. 참여하신 분들은 PostgreSQL과 pgvector의 
+                핵심 전문가로 성장하며, 개발팀과 유관 부서의 <strong>기술 컨설턴트</strong> 역할을 수행하게 됩니다.
+            </p>
+        </div>
+
+        <div class="cta-section">
+            <h2 class="cta-title">Join Our Expert Team</h2>
+            <p class="cta-subtitle">PostgreSQL과 Vector DB의 미래를 함께 만들어갈 전문가를 찾습니다</p>
+            <button class="btn-apply" onclick="window.openModal()">Apply Now</button>
+        </div>
+
+        <div class="admin-panel" id="adminPanel">
+            <h3>지원자</h3>
+            <div class="applicants-grid" id="applicantsList"></div>
+        </div>
+    </div>
+
+    <!-- 모달 -->
+    <div id="applicationModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="window.closeModal()">&times;</span>
+            <h2>Apply Now</h2>
+            <p class="modal-subtitle">Expert program 지원</p>
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" placeholder="이름을 입력해주세요">
+            </div>
+            <button class="btn-submit" onclick="window.handleSubmit()">Submit Application</button>
+        </div>
+    </div>
+
+    <!-- Admin 비밀번호 입력 모달 -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <span class="close" onclick="window.closePasswordModal()">&times;</span>
+            <h2 style="color: #3b82f6; margin-bottom: 20px;">Admin Access</h2>
+            <div class="form-group">
+                <label for="passwordInput">비밀번호 입력</label>
+                <input type="password" id="passwordInput" placeholder="비밀번호를 입력하세요">
+            </div>
+            <button class="btn-submit" onclick="window.checkPassword()">확인</button>
+        </div>
+    </div>
+
+    <button class="admin-toggle" onclick="window.showPasswordModal()">Admin</button>
+
+    <script>
+        // Supabase 설정
+        var SUPABASE_URL = 'https://genvbtvsjahdebvecgrb.supabase.co';
+        var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdlbnZidHZzamFoZGVidmVjZ3JiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI5ODczMzAsImV4cCI6MjA1ODU2MzMzMH0.R8MhMge1vGJmm-x9JKk9_GK4Za-H5eHMak2h0OYmrA4';
+        
+        // 전역 변수
+        window.applicants = [];
+        
+        // Supabase에서 지원자 목록 가져오기
+        window.getApplicants = function() {
+            fetch(SUPABASE_URL + '/rest/v1/applicants?select=*&order=created_at.desc', {
+                method: 'GET',
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': 'Bearer ' + SUPABASE_KEY,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(function(response) { 
+                if (!response.ok) {
+                    throw new Error('HTTP error! status: ' + response.status);
+                }
+                return response.json(); 
+            })
+            .then(function(data) {
+                console.log('데이터 가져오기 성공:', data);
+                window.applicants = data.map(function(item) {
+                    var date = new Date(item.created_at);
+                    return {
+                        name: item.name,
+                        timestamp: date.getFullYear() + '. ' + 
+                                  ('0' + (date.getMonth() + 1)).slice(-2) + '. ' + 
+                                  ('0' + date.getDate()).slice(-2) + '. ' + 
+                                  ('0' + date.getHours()).slice(-2) + ':' + 
+                                  ('0' + date.getMinutes()).slice(-2)
+                    };
+                });
+                window.updateAdminPanel();
+            })
+            .catch(function(error) {
+                console.error('데이터 가져오기 실패:', error);
+                alert('서버 연결에 실패했습니다.');
+                window.updateAdminPanel();
+            });
+        };
+        
+        // Supabase에 지원자 추가
+        window.addApplicant = function(name) {
+            var requestBody = JSON.stringify({ name: name });
+            
+            fetch(SUPABASE_URL + '/rest/v1/applicants', {
+                method: 'POST',
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': 'Bearer ' + SUPABASE_KEY,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=minimal'
+                },
+                body: requestBody
+            })
+            .then(function(response) { 
+                if (!response.ok) {
+                    return response.text().then(function(text) {
+                        throw new Error('HTTP error! status: ' + response.status + ', message: ' + text);
+                    });
+                }
+                console.log('지원자 추가 성공');
+                // 추가 성공 시 목록 새로고침
+                window.getApplicants();
+                return true;
+            })
+            .catch(function(error) {
+                console.error('Supabase 연결 실패:', error);
+                alert('죄송합니다. 현재 서버 연결에 문제가 있습니다.\n잠시 후 다시 시도해주세요.');
+            });
+        };
+
+        window.openModal = function() {
+            document.getElementById('applicationModal').style.display = 'block';
+            document.getElementById('name').focus();
+        };
+
+        window.closeModal = function() {
+            document.getElementById('applicationModal').style.display = 'none';
+            var nameInput = document.getElementById('name');
+            if (nameInput) {
+                nameInput.value = '';
+            }
+        };
+
+        window.handleSubmit = function() {
+            var nameInput = document.getElementById('name');
+            var name = nameInput.value.trim();
+            
+            if (name === '') {
+                alert('이름을 입력해주세요.');
+                return;
+            }
+            
+            // Supabase에 저장
+            window.addApplicant(name);
+            
+            // 폼 초기화 및 모달 닫기
+            window.closeModal();
+            
+            // 성공 메시지 표시
+            var successMsg = document.createElement('div');
+            successMsg.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #3b82f6; color: white; padding: 20px 40px; border-radius: 10px; z-index: 2000; font-size: 1.2em;';
+            successMsg.textContent = 'Thank you, ' + name + '! Application submitted.';
+            
+            document.body.appendChild(successMsg);
+            
+            setTimeout(function() {
+                document.body.removeChild(successMsg);
+            }, 3000);
+        };
+
+        window.showPasswordModal = function() {
+            var adminPanel = document.getElementById('adminPanel');
+            if (adminPanel.style.display === 'block') {
+                adminPanel.style.display = 'none';
+            } else {
+                document.getElementById('passwordModal').style.display = 'block';
+                document.getElementById('passwordInput').focus();
+            }
+        };
+
+        window.closePasswordModal = function() {
+            document.getElementById('passwordModal').style.display = 'none';
+            document.getElementById('passwordInput').value = '';
+        };
+
+        window.checkPassword = function() {
+            var password = document.getElementById('passwordInput').value;
+            
+            // 직접 비교 (단순하지만 확실함)
+            if (password === '11qqAAZZ') {
+                window.closePasswordModal();
+                document.getElementById('adminPanel').style.display = 'block';
+                window.updateAdminPanel();
+                
+                // 자동 스크롤
+                setTimeout(function() {
+                    var adminPanel = document.getElementById('adminPanel');
+                    adminPanel.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start',
+                        inline: 'nearest'
+                    });
+                    // 추가로 window 스크롤도 조정
+                    window.scrollTo({
+                        top: adminPanel.offsetTop - 100,
+                        behavior: 'smooth'
+                    });
+                }, 200);
+            } else {
+                alert('비밀번호가 틀렸습니다.');
+                document.getElementById('passwordInput').value = '';
+                document.getElementById('passwordInput').focus();
+            }
+        };
+
+        window.updateAdminPanel = function() {
+            var list = document.getElementById('applicantsList');
+            list.innerHTML = '';
+            
+            if (window.applicants.length === 0) {
+                var emptyMsg = document.createElement('p');
+                emptyMsg.style.color = '#6b7280';
+                emptyMsg.style.textAlign = 'center';
+                emptyMsg.style.gridColumn = '1/-1';
+                emptyMsg.textContent = '아직 지원자가 없습니다.';
+                list.appendChild(emptyMsg);
+                return;
+            }
+            
+            for (var i = 0; i < window.applicants.length; i++) {
+                var card = document.createElement('div');
+                card.className = 'applicant-card';
+                
+                var nameDiv = document.createElement('div');
+                nameDiv.className = 'applicant-name';
+                nameDiv.textContent = window.applicants[i].name;
+                
+                var timeDiv = document.createElement('div');
+                timeDiv.className = 'applicant-time';
+                timeDiv.textContent = window.applicants[i].timestamp;
+                
+                card.appendChild(nameDiv);
+                card.appendChild(timeDiv);
+                list.appendChild(card);
+            }
+            
+            // 버튼 컨테이너 - CSV 다운로드만 유지
+            if (window.applicants.length > 0) {
+                var buttonContainer = document.createElement('div');
+                buttonContainer.style.cssText = 'margin-top: 30px;';
+                
+                // CSV 다운로드 버튼
+                var downloadBtn = document.createElement('button');
+                downloadBtn.style.cssText = 'padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 5px; cursor: pointer;';
+                downloadBtn.textContent = '📥 CSV 다운로드';
+                downloadBtn.onclick = function() {
+                    var csv = '\ufeff이름,지원시간\n';
+                    for (var i = 0; i < window.applicants.length; i++) {
+                        csv += window.applicants[i].name + ',' + window.applicants[i].timestamp + '\n';
+                    }
+                    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    var link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = '지원자명단_' + new Date().toISOString().slice(0, 10) + '.csv';
+                    link.click();
+                };
+                
+                buttonContainer.appendChild(downloadBtn);
+                list.appendChild(buttonContainer);
+            }
+        };
+
+        // 모달 외부 클릭 시 닫기
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('applicationModal')) {
+                window.closeModal();
+            }
+            if (event.target == document.getElementById('passwordModal')) {
+                window.closePasswordModal();
+            }
+        };
+
+        // ESC 키로 모달 닫기
+        document.onkeydown = function(evt) {
+            evt = evt || window.event;
+            if (evt.keyCode == 27) {
+                window.closeModal();
+                window.closePasswordModal();
+            }
+        };
+
+        // 엔터키로 비밀번호 제출
+        document.getElementById('passwordInput').onkeydown = function(evt) {
+            evt = evt || window.event;
+            if (evt.keyCode == 13) {
+                window.checkPassword();
+            }
+        };
+    </script>
+</body>
+</html>
